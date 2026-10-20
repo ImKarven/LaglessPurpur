@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Tue, 20 Oct 2026 22:27:03 +0700
+Subject: [PATCH] Rebrand to LaglessPurpur
+
+
+diff --git a/src/main/java/org/purpurmc/purpur/PurpurVersionFetcher.java b/src/main/java/org/purpurmc/purpur/PurpurVersionFetcher.java
+index ddcb0ab2a325227fd2644b6abb926a312aa91172..0b4b4ffa26cc51e47e62fe78026585b208a7f3db 100644
+--- a/src/main/java/org/purpurmc/purpur/PurpurVersionFetcher.java
++++ b/src/main/java/org/purpurmc/purpur/PurpurVersionFetcher.java
+@@ -36,15 +36,15 @@ public class PurpurVersionFetcher implements VersionFetcher {
+     private static final Logger LOGGER = LogUtils.getClassLogger();
+     private static final int DISTANCE_ERROR = -1;
+     private static final int DISTANCE_UNKNOWN = -2;
+-    private static final String DOWNLOAD_PAGE = "https://api.example.com/nonexistent/downloads"; // Tentacles
+-    private static final String REPOSITORY = "PurpurMC/Tentacles"; // Tentacles
++    private static final String DOWNLOAD_PAGE = "https://github.com/ImKarven/LaglessPurpur"; // Tentacles // LaglessPurpur
++    private static final String REPOSITORY = "ImKarven/LaglessPurpur"; // Tentacles // LaglessPurpur
+     private static final ServerBuildInfo BUILD_INFO;
+     private static final String USER_AGENT;
+     private static final Gson GSON = new Gson();
+ 
+     static {
+         BUILD_INFO = ServerBuildInfo.buildInfo();
+-        USER_AGENT = BUILD_INFO.brandName() + "/" + BUILD_INFO.asString(VERSION_SIMPLE) + " (https://example.com/nonexistent)"; // Tentacles
++        USER_AGENT = BUILD_INFO.brandName() + "/" + BUILD_INFO.asString(VERSION_SIMPLE) + " (https://github.com/ImKarven/LaglessPurpur)"; // Tentacles // LaglessPurpur
+     }
+ 
+     private static int distance = DISTANCE_UNKNOWN;

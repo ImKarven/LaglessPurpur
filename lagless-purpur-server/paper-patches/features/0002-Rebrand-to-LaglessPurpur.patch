@@ -1,0 +1,98 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Tue, 20 Oct 2026 22:25:39 +0700
+Subject: [PATCH] Rebrand to LaglessPurpur
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index 827d58a315021543b6b04eb0e3821384a2f7224e..6116375228469dbb217f8a330720f8988613d93d 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -21,7 +21,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+-                .appName("Tentacles") // Purpur - Rebrand // Tentacles
++                .appName("Purpur") // Purpur - Rebrand // Tentacles // LaglessPurpur - Rename to Purpur
+                 .variable(LineReader.HISTORY_FILE, PaperCacheDir.moveFromServerRootAndGet(".console_history", "console_history"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+index 45a3f2576fd0cca58dfdeb75a2217674a8291ef8..3762e983e8d2da427ec2f9c6a8d10948ca8bd52f 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+@@ -32,7 +32,8 @@ public record ServerBuildInfoImpl(
+ 
+     private static final String BRAND_PAPER_NAME = "Paper";
+     private static final String BRAND_PURPUR_NAME = "Purpur"; // Purpur - Rebrand
+-    private static final String BRAND_TENTACLES_NAME = "Tentacles"; // Tentacles
++//    private static final String BRAND_TENTACLES_NAME = "Tentacles"; // Tentacles // LaglessPurpur - remove Tentacles brand name field
++    private static final String BRAND_LAGLESS_PURPUR_NAME = "LaglessPurpur"; // LaglessPurpur
+ 
+     private static final String BUILD_DEV = "DEV";
+ 
+@@ -44,9 +45,9 @@ public record ServerBuildInfoImpl(
+         this(
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_ID)
+                 .map(Key::key)
+-                .orElse(BRAND_TENTACLES_ID), // Purpur - Rebrand // Tentacles
++                .orElse(BRAND_LAGLESS_PURPUR_ID), // Purpur - Rebrand // Tentacles // LaglessPurpur
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_NAME)
+-                .orElse(BRAND_TENTACLES_NAME), // Purpur - Rebrand
++                .orElse(BRAND_LAGLESS_PURPUR_NAME), // Purpur - Rebrand // LaglessPurpur
+             SharedConstants.getCurrentVersion().id(),
+             SharedConstants.getCurrentVersion().name(),
+             getManifestAttribute(manifest, ATTRIBUTE_BUILD_NUMBER)
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index 72e6801b6d9a16d94cb2ecbc7dd0f22cac36d662..298866938c765d87bf8c59e3dfd20364ab4d8c57 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -491,7 +491,7 @@ public class CraftScheduler implements BukkitScheduler {
+                 this.parsePending();
+             } else {
+                 // this.debugTail = this.debugTail.setNext(new CraftAsyncDebugger(this.currentTick + CraftScheduler.RECENT_TICKS, task.getOwner(), task.getTaskClass())); // Paper
+-                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Tentacles"); // Paper // Purpur - Rebrand // Tentacles
++                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to LaglessPurpur"); // Paper // Purpur - Rebrand // Tentacles // LaglessPurpur
+                 // We don't need to parse pending
+                 // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
+             }
+diff --git a/src/main/java/org/spigotmc/WatchdogThread.java b/src/main/java/org/spigotmc/WatchdogThread.java
+index 40483bd1195e8afd7238cb3a3903a156d6d5f18f..caed8e6f6e07b8d17f3f6074499c23389e9c3839 100644
+--- a/src/main/java/org/spigotmc/WatchdogThread.java
++++ b/src/main/java/org/spigotmc/WatchdogThread.java
+@@ -75,14 +75,14 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                 this.lastEarlyWarning = currentTime;
+                 if (isLongTimeout) {
+                     logger.log(Level.SEVERE, "------------------------------");
+-                    logger.log(Level.SEVERE, "The server has stopped responding! This is (probably) not a Tentacles bug."); // Paper // Purpur - Rebrand // Tentacles
++                    logger.log(Level.SEVERE, "The server has stopped responding! This is (probably) not a LaglessPurpur bug."); // Paper // Purpur - Rebrand // Tentacles // LaglessPurpur
+                     logger.log(Level.SEVERE, "If you see a plugin in the Server thread dump below, then please report it to that author");
+                     logger.log(Level.SEVERE, "\t *Especially* if it looks like HTTP or MySQL operations are occurring");
+                     logger.log(Level.SEVERE, "If you see a world save or edit, then it means you did far more than your server can handle at once");
+                     logger.log(Level.SEVERE, "\t If this is the case, consider increasing timeout-time in spigot.yml but note that this will replace the crash with LARGE lag spikes");
+-                    logger.log(Level.SEVERE, "If you are unsure or still think this is a Tentacles bug, please report this to https://github.com/PurpurMC/Tentacles/issues"); // Purpur - Rebrand // Tentacles
++                    logger.log(Level.SEVERE, "If you are unsure or still think this is a LaglessPurpur bug, please report this to https://github.com/ImKarven/LaglessPurpur"); // Purpur - Rebrand // Tentacles // LaglessPurpur
+                     logger.log(Level.SEVERE, "Be sure to include ALL relevant console errors and Minecraft crash reports");
+-                    logger.log(Level.SEVERE, "Tentacles version: " + Bukkit.getServer().getVersion()); // Purpur - Rebrand // Tentacles
++                    logger.log(Level.SEVERE, "LaglessPurpur version: " + Bukkit.getServer().getVersion()); // Purpur - Rebrand // Tentacles // LaglessPurpur
+ 
+                     if (net.minecraft.world.level.Level.lastPhysicsProblem != null) {
+                         logger.log(Level.SEVERE, "------------------------------");
+@@ -102,7 +102,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                     }
+                     // Paper end
+                 } else {
+-                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO TENTACLES - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---"); // Purpur - Rebrand // Tentacles
++                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO LAGLESSPURPUR - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---"); // Purpur - Rebrand // Tentacles // LaglessPurpur
+                     logger.log(Level.SEVERE, "The server has not responded for " + (currentTime - lastTick) / 1000 + " seconds! Creating thread dump");
+                 }
+                 // Paper end - Different message for short timeout
+@@ -120,7 +120,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                         WatchdogThread.dumpThread(thread, logger);
+                     }
+                 } else {
+-                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO TENTACLES - THIS IS NOT A BUG OR A CRASH ---"); // Purpur - Rebrand // Tentacles
++                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO LAGLESSPURPUR - THIS IS NOT A BUG OR A CRASH ---"); // Purpur - Rebrand // Tentacles // LaglessPurpur
+                 }
+ 
+                 logger.log(Level.SEVERE, "------------------------------");
