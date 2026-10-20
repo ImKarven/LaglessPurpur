@@ -90,7 +90,7 @@ subprojects {
         }*/
 
         dependencies {
-            "checkstyle"(project(":tentacles-checkstyle"))
+            "checkstyle"(project(":lagless-purpur-checkstyle"))
         }
     }
 
