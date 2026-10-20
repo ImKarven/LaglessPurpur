@@ -1,0 +1,3 @@
+[submodule "lagless-common"]
+	path = lagless-common
+	url = https://github.com/ImKarven/lagless-common.git
