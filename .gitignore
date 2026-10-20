@@ -51,10 +51,10 @@ manifest.mf
 # other stuff
 run/
 
-tentacles-api/build.gradle.kts
-tentacles-server/build.gradle.kts
-tentacles-server/src/minecraft
-tentacles-checkstyle/build.gradle.kts
+lagless-purpur-api/build.gradle.kts
+lagless-purpur-server/build.gradle.kts
+lagless-purpur-server/src/minecraft
+lagless-purpur-checkstyle/build.gradle.kts
 purpur-api
 purpur-server
 purpur-checkstyle
