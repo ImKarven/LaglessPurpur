@@ -37,6 +37,8 @@ for (name in listOf("tentacles-api", "tentacles-server", "tentacles-checkstyle")
 
 optionalInclude("test-plugin")
 
+includeBuild("lagless-common")
+
 fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null) {
     val settingsFile = file("$name.settings.gradle.kts")
     if (settingsFile.exists()) {
