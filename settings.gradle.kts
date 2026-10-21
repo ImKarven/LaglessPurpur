@@ -37,8 +37,6 @@ for (name in listOf("lagless-purpur-api", "lagless-purpur-server", "lagless-purp
 
 optionalInclude("test-plugin")
 
-includeBuild("lagless-common")
-
 fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null) {
     val settingsFile = file("$name.settings.gradle.kts")
     if (settingsFile.exists()) {
