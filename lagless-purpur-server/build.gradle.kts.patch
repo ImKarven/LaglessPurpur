@@ -35,12 +35,13 @@
  
      /*updatingMinecraft { // Purpur start - Rebrand - we don't need this
          //oldPaperCommit = "e5fe71723e2ffde7cc9fafc085ac3bb73e63175e"
-@@ -105,10 +_,14 @@
+@@ -105,10 +_,15 @@
      main {
          java { srcDir("../paper-server/src/main/java") }
          resources { srcDir("../paper-server/src/main/resources") }
 +        java { srcDir("../purpur-server/src/main/java") }
 +        resources { srcDir("../purpur-server/src/main/resources") }
++        java { srcDir("../lagless-common/src/main/java") } // Lagless - include common module
      }
      test {
          java { srcDir("../paper-server/src/test/java") }

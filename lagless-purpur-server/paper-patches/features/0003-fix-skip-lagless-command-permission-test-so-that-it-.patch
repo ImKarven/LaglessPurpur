@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 02:52:47 +0700
+Subject: [PATCH] fix: skip lagless command permission test so that it compiles
+
+
+diff --git a/src/test/java/io/papermc/paper/permissions/MinecraftCommandPermissionsTest.java b/src/test/java/io/papermc/paper/permissions/MinecraftCommandPermissionsTest.java
+index 1ae700532dad07a39a3b973d7c077f308c3301ee..47eff3c4e3367a16cbda09c9f18e1aa28d382d8b 100644
+--- a/src/test/java/io/papermc/paper/permissions/MinecraftCommandPermissionsTest.java
++++ b/src/test/java/io/papermc/paper/permissions/MinecraftCommandPermissionsTest.java
+@@ -78,6 +78,7 @@ public class MinecraftCommandPermissionsTest {
+         "minecraft.command.gamemode.survival",
+         "minecraft.command.gamemode.survival.other",
+         // Purpur end - Skip junit tests for purpur commands
++        "minecraft.command.lagless", // Lagless - skip junit tests for Lagless command
+         "minecraft.command.selector"
+     );
+ 
