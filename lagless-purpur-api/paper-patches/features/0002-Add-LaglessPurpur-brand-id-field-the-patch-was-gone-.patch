@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Fri, 23 Oct 2026 22:25:34 +0700
+Subject: [PATCH] Add LaglessPurpur brand id field (the patch was gone for some
+ reason)
+
+
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+index 83a3432b2aeafa2e5648dadc533dbed597d7c6e9..44ddde55e11fb89876d27956973aac57b859cf6f 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -27,8 +27,14 @@ public interface ServerBuildInfo {
+     /**
+      * The brand id for Tentacles.
+      */
+-    Key BRAND_TENTACLES_ID = Key.key("tentaclesmc", "tentacles");
++//    Key BRAND_TENTACLES_ID = Key.key("tentaclesmc", "tentacles"); // LaglessPurpur - Remove Tentacles brand ID
+     // Tentacles end
++    // LaglessPurpur start
++    /**
++     * The brand id for LaglessPurpur
++     */
++    Key BRAND_LAGLESS_PURPUR_ID = Key.key("laglessmc", "lagless-purpur");
++    // LaglessPurpur end
+     /**
+      * Gets the {@code ServerBuildInfo}.
+      *
