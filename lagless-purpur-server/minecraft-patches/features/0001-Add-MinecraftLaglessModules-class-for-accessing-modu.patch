@@ -1,0 +1,16 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 00:47:12 +0700
+Subject: [PATCH] Add MinecraftLaglessModules class for accessing modules
+
+
+diff --git a/me/karven/lagless/module/MinecraftLaglessModules.java b/me/karven/lagless/module/MinecraftLaglessModules.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5150f3166e8cdadc67aafa8aa0560b30f5b0a878
+--- /dev/null
++++ b/me/karven/lagless/module/MinecraftLaglessModules.java
+@@ -0,0 +1,4 @@
++package me.karven.lagless.module;
++
++public class MinecraftLaglessModules {
++}

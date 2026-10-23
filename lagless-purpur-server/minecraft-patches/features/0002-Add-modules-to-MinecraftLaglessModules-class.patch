@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 00:48:23 +0700
+Subject: [PATCH] Add modules to MinecraftLaglessModules class
+
+
+diff --git a/me/karven/lagless/module/MinecraftLaglessModules.java b/me/karven/lagless/module/MinecraftLaglessModules.java
+index 5150f3166e8cdadc67aafa8aa0560b30f5b0a878..89e09eeb39bf6f1be37b60298971cd4cc8066379 100644
+--- a/me/karven/lagless/module/MinecraftLaglessModules.java
++++ b/me/karven/lagless/module/MinecraftLaglessModules.java
+@@ -1,4 +1,7 @@
+ package me.karven.lagless.module;
+ 
+ public class MinecraftLaglessModules {
++    public static final AttackModule ATTACK = new AttackModule();
++    public static final PoseModule POSE = new PoseModule();
++    public static final ItemCountModule ITEM_COUNT = new ItemCountModule();
+ }
