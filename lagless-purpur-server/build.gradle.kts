@@ -132,6 +132,7 @@ sourceSets {
         resources { srcDir("../paper-server/src/main/resources") }
         java { srcDir("../purpur-server/src/main/java") }
         resources { srcDir("../purpur-server/src/main/resources") }
+        java { srcDir("../lagless-common/src/main/java") } // Lagless - include common module
     }
     test {
         java { srcDir("../paper-server/src/test/java") }

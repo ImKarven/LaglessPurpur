@@ -133,17 +133,6 @@ subprojects {
     }
 }
 
-project(":lagless-purpur-server") {
-    plugins.withId("java") {
-        extensions.configure<SourceSetContainer>("sourceSets") {
-            named("main") {
-                java.srcDir(rootProject.file("lagless-common/src/main/java"))
-                resources.srcDir(rootProject.file("lagless-common/src/main/resources"))
-            }
-        }
-    }
-}
-
 tasks.register("printMinecraftVersion") {
     doLast {
         println(providers.gradleProperty("mcVersion").get().trim())
