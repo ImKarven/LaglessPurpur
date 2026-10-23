@@ -16,44 +16,44 @@ paperweight {
 
         patchFile {
             path = "purpur-server/build.gradle.kts"
-            outputFile = file("tentacles-server/build.gradle.kts")
-            patchFile = file("tentacles-server/build.gradle.kts.patch")
+            outputFile = file("lagless-purpur-server/build.gradle.kts")
+            patchFile = file("lagless-purpur-server/build.gradle.kts.patch")
         }
         patchFile {
             path = "purpur-api/build.gradle.kts"
-            outputFile = file("tentacles-api/build.gradle.kts")
-            patchFile = file("tentacles-api/build.gradle.kts.patch")
+            outputFile = file("lagless-purpur-api/build.gradle.kts")
+            patchFile = file("lagless-purpur-api/build.gradle.kts.patch")
         }
         patchFile {
             path = "purpur-checkstyle/build.gradle.kts"
-            outputFile = file("tentacles-checkstyle/build.gradle.kts")
-            patchFile = file("tentacles-checkstyle/build.gradle.kts.patch")
+            outputFile = file("lagless-purpur-checkstyle/build.gradle.kts")
+            patchFile = file("lagless-purpur-checkstyle/build.gradle.kts.patch")
         }
         patchRepo("paperApi") {
             upstreamPath = "paper-api"
-            patchesDir = file("tentacles-api/paper-patches")
+            patchesDir = file("lagless-purpur-api/paper-patches")
             outputDir = file("paper-api")
         }
         patchDir("purpurApi") {
             upstreamPath = "purpur-api"
             excludes = listOf("build.gradle.kts", "build.gradle.kts.patch", "paper-patches")
-            patchesDir = file("tentacles-api/purpur-patches")
+            patchesDir = file("lagless-purpur-api/purpur-patches")
             outputDir = file("purpur-api")
         }
         patchRepo("paperCheckstyle") {
             upstreamPath = "paper-checkstyle"
-            patchesDir = file("tentacles-checkstyle/paper-patches")
+            patchesDir = file("lagless-purpur-checkstyle/paper-patches")
             outputDir = file("paper-checkstyle")
         }
         patchDir("purpurCheckstyle") {
             upstreamPath = "purpur-checkstyle"
             excludes = setOf("build.gradle.kts", "build.gradle.kts.patch", "paper-patches")
-            patchesDir = file("tentacles-checkstyle/purpur-patches")
+            patchesDir = file("lagless-purpur-checkstyle/purpur-patches")
             outputDir = file("purpur-checkstyle")
         }
         patchRepo("paperCheckstyleConfig") {
             upstreamPath = ".checkstyle"
-            patchesDir = file("tentacles-checkstyle/config-patches")
+            patchesDir = file("lagless-purpur-checkstyle/config-patches")
             outputDir = file(".checkstyle")
         }
     }
@@ -71,7 +71,7 @@ subprojects {
         }
     }
 
-    val tempDisabled = setOf("tentacles-server", "purpur-server", "paper-server", "test-plugin")
+    val tempDisabled = setOf("lagless-purpur-server", "purpur-server", "paper-server", "test-plugin")
 
     if (name !in tempDisabled) {
         apply { plugin("io.papermc.paperweight.paper-checkstyle") }
@@ -126,7 +126,7 @@ subprojects {
     extensions.configure<PublishingExtension> {
         repositories {
             maven("https://repo.purpurmc.org/snapshots") {
-                name = "tentacles"
+                name = "lagless-purpur"
                 credentials(PasswordCredentials::class)
             }
         }
@@ -150,7 +150,7 @@ tasks.register("printMinecraftVersion") {
     }
 }
 
-tasks.register("printTentaclesVersion") {
+tasks.register("printLaglessPurpurVersion") {
     doLast {
         println(project.version)
     }
