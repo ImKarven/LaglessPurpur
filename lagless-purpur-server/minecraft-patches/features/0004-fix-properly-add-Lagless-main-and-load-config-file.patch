@@ -1,0 +1,117 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 02:34:22 +0700
+Subject: [PATCH] fix: properly add Lagless main and load config file
+
+
+diff --git a/me/karven/lagless/MinecraftLaglessMain.java b/me/karven/lagless/MinecraftLaglessMain.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8bcb7c4ab4098515f32d4a99c63c0e7eb4536af6
+--- /dev/null
++++ b/me/karven/lagless/MinecraftLaglessMain.java
+@@ -0,0 +1,14 @@
++package me.karven.lagless;
++
++import org.slf4j.Logger;
++
++public class MinecraftLaglessMain extends BaseMain {
++    public MinecraftLaglessMain(final Logger logger) {
++        super(logger);
++    }
++
++    @Override
++    void registerCommand() {
++        // Commands are registered in net.minecraft.commands.Commands class.
++    }
++}
+diff --git a/me/karven/lagless/command/LaglessCommand.java b/me/karven/lagless/command/LaglessCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..836c1bf30169d09c3d9f779494ebd60b439c2732
+--- /dev/null
++++ b/me/karven/lagless/command/LaglessCommand.java
+@@ -0,0 +1,42 @@
++package me.karven.lagless.command;
++
++import com.mojang.brigadier.Command;
++import com.mojang.brigadier.CommandDispatcher;
++import me.karven.lagless.MinecraftLaglessMain;
++import net.minecraft.commands.CommandSourceStack;
++import net.minecraft.commands.Commands;
++import net.minecraft.network.chat.Component;
++import net.minecraft.network.chat.TextColor;
++import net.minecraft.server.permissions.Permissions;
++
++public class LaglessCommand {
++    private static final Component RELOAD_CONFIG_SUCCESS_MESSAGE = Component.literal("Config reloaded successfully").withColor(TextColor.GREEN);
++    private static final Component RELOAD_CONFIG_FAILED_MESSAGE = Component.literal("Failed to reload config").withColor(TextColor.RED);
++
++
++    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
++        dispatcher.register(Commands.literal("lagless")
++                .requires(source -> source.hasPermission(Permissions.COMMANDS_GAMEMASTER, "lagless.command"))
++                .then(Commands.literal("reload")
++                        .requires(source -> source.hasPermission(Permissions.COMMANDS_GAMEMASTER, "lagless.command.reload"))
++                        .executes(context -> {
++                            MinecraftLaglessMain.instance().reloadConfigAsync().whenComplete((result, exception) -> {
++                                final CommandSourceStack source = context.getSource();
++                                if (exception != null) {
++                                    source.sendFailure(RELOAD_CONFIG_FAILED_MESSAGE);
++                                    return;
++                                }
++
++                                switch (result) {
++                                    case FAILED -> source.sendFailure(RELOAD_CONFIG_FAILED_MESSAGE);
++
++                                    case SUCCESS -> source.sendSuccess(() -> RELOAD_CONFIG_SUCCESS_MESSAGE, false);
++                                }
++                            });
++
++                            return Command.SINGLE_SUCCESS;
++                        })
++                )
++        );
++    }
++}
+diff --git a/net/minecraft/commands/Commands.java b/net/minecraft/commands/Commands.java
+index 0bf3433cc7c796b7bf5354dfe179f43bdb0b16e6..c69748a722461a052ec77c7ec8c6b3b6d4ce0ecf 100644
+--- a/net/minecraft/commands/Commands.java
++++ b/net/minecraft/commands/Commands.java
+@@ -312,6 +312,7 @@ public class Commands {
+             org.purpurmc.purpur.command.CompassCommand.register(this.dispatcher); // Purpur - Add compass command
+             org.purpurmc.purpur.command.RamBarCommand.register(this.dispatcher); // Purpur - Add rambar command
+             org.purpurmc.purpur.command.RamCommand.register(this.dispatcher); // Purpur - Add ram command
++            me.karven.lagless.command.LaglessCommand.register(this.dispatcher); // Lagless - Add Lagless command
+         }
+ 
+         if (commandSelection.includeIntegrated) {
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index 582d8d62026876e25cfbe723ead7309da1bb25ab..81b4b43f186d1469dcc80367f26362beb9a9a6ff 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -23,6 +23,8 @@ import java.util.Map;
+ import java.util.Optional;
+ import java.util.function.BooleanSupplier;
+ import java.util.stream.Stream;
++
++import me.karven.lagless.MinecraftLaglessMain;
+ import net.minecraft.DefaultUncaughtExceptionHandler;
+ import net.minecraft.DefaultUncaughtExceptionHandlerWithName;
+ import net.minecraft.SharedConstants;
+@@ -71,6 +73,7 @@ import net.minecraft.world.level.storage.LevelData;
+ import net.minecraft.world.level.storage.LevelStorageSource;
+ import org.jspecify.annotations.Nullable;
+ import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
+ 
+ public class DedicatedServer extends MinecraftServer implements ServerInterface {
+     private static final Logger LOGGER = LogUtils.getLogger();
+@@ -260,6 +263,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         }
+         org.purpurmc.purpur.PurpurConfig.registerCommands();
+         // Purpur end - Purpur config files
++        // Lagless start - Lagless initialization
++        new MinecraftLaglessMain(LoggerFactory.getLogger("Lagless")).enable();
++        // Lagless end - Lagless initialization
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+ 
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
