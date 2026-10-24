@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 15:54:35 +0700
+Subject: [PATCH] feat: Implement item count module
+
+
+diff --git a/net/minecraft/server/level/ServerPlayerGameMode.java b/net/minecraft/server/level/ServerPlayerGameMode.java
+index 8387d4b0aaee0b9426680729f435a6cc7a8168fa..ddf7e34c76658c2eabc164abae20eb49a0c4380f 100644
+--- a/net/minecraft/server/level/ServerPlayerGameMode.java
++++ b/net/minecraft/server/level/ServerPlayerGameMode.java
+@@ -533,6 +533,42 @@ public class ServerPlayerGameMode {
+     public InteractionResult useItemOn(
+         final ServerPlayer player, final Level level, final ItemStack itemStack, final InteractionHand hand, final BlockHitResult hitResult
+     ) {
++        // Lagless start - Implement Item Count Module
++        if (!me.karven.lagless.module.MinecraftLaglessModules.ITEM_COUNT.isEnabled()) {
++            return this.lagless$useItemOn(player, level, itemStack, hand, hitResult);
++        }
++
++        final ItemStack untouchedItemStack = itemStack.copy();
++        final InteractionResult result = this.lagless$useItemOn(player, level, itemStack, hand, hitResult);
++
++        if (!(untouchedItemStack.getItem() instanceof net.minecraft.world.item.BlockItem)) return result;
++        if (!result.consumesAction()) return result;
++        if (player.hasInfiniteMaterials()) return result;
++
++        final ItemStack processedItemStack = player.getItemInHand(hand);
++        // We expect the process ItemStack to have an off-by-one count to the original ItemStack
++        // If this is not the case, the client and server are not in sync, so the server should sync the item normally
++        final boolean exactlyOneConsumed =
++                processedItemStack.getCount() == untouchedItemStack.getCount() - 1
++                        && (processedItemStack.isEmpty() || ItemStack.isSameItemSameComponents(processedItemStack, untouchedItemStack));
++        if (!exactlyOneConsumed) return result;
++
++        final net.minecraft.world.entity.player.Inventory inventory = player.getInventory();
++        final int handSlot = hand == InteractionHand.MAIN_HAND ? inventory.getSelectedSlot() : net.minecraft.world.entity.player.Inventory.SLOT_OFFHAND;
++        final net.minecraft.world.inventory.AbstractContainerMenu currentMenu = player.containerMenu;
++
++        for (final net.minecraft.world.inventory.Slot slot : currentMenu.slots) {
++            if (slot.container != inventory || slot.getContainerSlot() != handSlot) continue;
++            final net.minecraft.world.inventory.RemoteSlot remoteSlot = currentMenu.remoteSlots.get(slot.index);
++            if (!(remoteSlot.matches(untouchedItemStack))) continue;
++            currentMenu.setRemoteSlot(slot.index, processedItemStack); // Sync remote so that packet won't be sent on container update
++        }
++        return result;
++    }
++    private InteractionResult lagless$useItemOn( // This method is exactly the same as the original useItemOn
++        final ServerPlayer player, final Level level, final ItemStack itemStack, final InteractionHand hand, final BlockHitResult hitResult
++    ) {
++        // Lagless end - Implement Item Count Module
+         if (shiftClickMended(itemStack)) return InteractionResult.SUCCESS; // Purpur - Shift right click to use exp for mending
+         BlockPos pos = hitResult.getBlockPos();
+         BlockState state = level.getBlockState(pos);

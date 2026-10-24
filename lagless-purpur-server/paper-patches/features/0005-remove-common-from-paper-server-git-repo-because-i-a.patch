@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sat, 24 Oct 2026 15:58:42 +0700
+Subject: [PATCH] remove common from paper server git repo because i
+ accidentally added it
+
+
+diff --git a/.gitmodules b/.gitmodules
+deleted file mode 100644
+index caf86bc00f721dff3f91c03b4d12a6a65315131f..0000000000000000000000000000000000000000
+--- a/.gitmodules
++++ /dev/null
+@@ -1,3 +0,0 @@
+-[submodule "lagless-common"]
+-	path = lagless-common
+-	url = https://github.com/ImKarven/lagless-common.git
+diff --git a/lagless-common b/lagless-common
+deleted file mode 160000
+index c7adc4acc1c2b4aee5cee3a058fd19f5c560bc24..0000000000000000000000000000000000000000
+--- a/lagless-common
++++ /dev/null
+@@ -1 +0,0 @@
+-Subproject commit c7adc4acc1c2b4aee5cee3a058fd19f5c560bc24
