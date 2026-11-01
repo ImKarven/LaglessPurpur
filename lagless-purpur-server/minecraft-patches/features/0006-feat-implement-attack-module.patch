@@ -1,0 +1,178 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sun, 1 Nov 2026 12:07:13 +0700
+Subject: [PATCH] feat: implement attack module
+
+
+diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
+index 9ca79884920461f933e152236421f6292d157ad2..822317cb35d4d8d23b0c0660155544492cf7c81c 100644
+--- a/net/minecraft/server/level/ServerPlayer.java
++++ b/net/minecraft/server/level/ServerPlayer.java
+@@ -284,6 +284,17 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+     private long timeEntitySatOnShoulder;
+     private CompoundTag shoulderEntityLeft = new CompoundTag();
+     private CompoundTag shoulderEntityRight = new CompoundTag();
++    // Lagless start - add punch state for attack module
++    private me.karven.lagless.module.AttackModule.PunchState punchState$lagless = me.karven.lagless.module.AttackModule.PunchState.NONE;
++
++    public me.karven.lagless.module.AttackModule.PunchState getPunchState$lagless() {
++        return this.punchState$lagless;
++    }
++
++    public void setPunchState$lagless(final me.karven.lagless.module.AttackModule.PunchState punchState) {
++        this.punchState$lagless = punchState;
++    }
++    // Lagless end - add punch state for attack module
+     public final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
+         private final LoadingCache<TypedDataComponent<?>, Integer> cache = CacheBuilder.newBuilder()
+             .maximumSize(256L)
+diff --git a/net/minecraft/server/level/ServerPlayerGameMode.java b/net/minecraft/server/level/ServerPlayerGameMode.java
+index ddf7e34c76658c2eabc164abae20eb49a0c4380f..88de9ecafc7c709b7695ddaa66f431eec08c1000 100644
+--- a/net/minecraft/server/level/ServerPlayerGameMode.java
++++ b/net/minecraft/server/level/ServerPlayerGameMode.java
+@@ -192,6 +192,11 @@ public class ServerPlayerGameMode {
+     public void handleBlockBreakAction(
+         final BlockPos pos, final ServerboundPlayerActionPacket.Action action, final Direction direction, final int maxY, final int sequence
+     ) {
++        // Lagless start - Update punch state for attack module
++        if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
++            this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.START_DESTROY_BLOCK);
++        }
++        // Lagless end - Update punch state for attack module
+         if (!this.player.isWithinBlockInteractionRange(pos, 1.0)) {
+             if (this.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) >= Level.SHORT_PARTICLE_CLIP_RANGE * Level.SHORT_PARTICLE_CLIP_RANGE) return; // Paper - Don't allow digging into unloaded chunks; Don't notify if unreasonably far away
+             if (this.isDestroyingBlock && action == ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK) {
+@@ -229,6 +234,7 @@ public class ServerPlayerGameMode {
+                 // CraftBukkit end
+ 
+                 if (this.player.getAbilities().instabuild) {
++                    this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.INSTANT_BREAK); // Lagless - Update punch state for attack module
+                     this.destroyAndAck(pos, sequence, "creative destroy");
+                     return;
+                 }
+@@ -282,6 +288,7 @@ public class ServerPlayerGameMode {
+                 // CraftBukkit end
+ 
+                 if (!blockState.isAir() && progress >= 1.0F) {
++                    this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.INSTANT_BREAK); // Lagless - Update punch state for attack module
+                     this.destroyAndAck(pos, sequence, "insta mine");
+                 } else {
+                     if (this.isDestroyingBlock) {
+@@ -306,6 +313,7 @@ public class ServerPlayerGameMode {
+                     if (!state.isAir()) {
+                         float destroyProgress = state.getDestroyProgress(this.player, this.player.level(), pos) * (ticksSpentDestroying + 1);
+                         if (destroyProgress >= 0.7F) {
++                            this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.NONE); // Lagless - Update punch state for attack module
+                             this.isDestroyingBlock = false;
+                             this.level.destroyBlockProgress(this.player.getId(), pos, -1);
+                             this.destroyAndAck(pos, sequence, "destroyed");
+@@ -330,6 +338,7 @@ public class ServerPlayerGameMode {
+     }
+ 
+     private void abortDestroyBlock(final BlockPos pos, final int sequence) {
++        this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.NONE); // Lagless - Update punch state for attack module
+         this.isDestroyingBlock = false;
+         // Paper start - Don't allow digging into unloaded chunks
+         if (!Objects.equals(this.destroyPos, pos) && !BlockPos.ZERO.equals(this.destroyPos)) { // Paper
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 73490e9d3d002873a87cad7eb41ee7c04f1376bc..daba54e1c4675f54df77f48d907a6555b823f9cd 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -2803,10 +2803,89 @@ public class ServerGamePacketListenerImpl
+             }
+         }
+     }
++    // Lagless start - Handle punch packet for attack module
++    private void handlePunchPacket$lagless() {
++        final me.karven.lagless.config.RootConfiguration config = me.karven.lagless.MinecraftLaglessMain.instance().config();
++        if (!me.karven.lagless.module.MinecraftLaglessModules.ATTACK.isEnabled(config)) return;
++
++        switch (this.player.getPunchState$lagless()) {
++            case ATTACK, INSTANT_BREAK -> {
++                // We shouldn't attack if the player broke a block with one punch
++                this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.NONE);
++                return;
++            }
++
++            // TODO: bug: the client can continue breaking block even after abort
++            case DESTROYING_BLOCK -> {
++                return;
++            }
++
++            case START_DESTROY_BLOCK -> this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.DESTROYING_BLOCK);
++        }
++
++        if (this.player.isSpectator() || !this.hasClientLoaded()) {
++            return;
++        }
++
++        final ItemStack mainHandItem = this.player.getMainHandItem();
++        if (this.player.cannotAttackWithItem(mainHandItem, 5)) {
++            return;
++        }
++
++        if (mainHandItem.has(DataComponents.PIERCING_WEAPON)) {
++            return;
++        }
++
++        final ServerLevel level = this.player.level();
++        if (!mainHandItem.isItemEnabled(level.enabledFeatures())) {
++            return;
++        }
++
++        final double range = this.player.entityInteractionRange();
++        final Location eyeLocation = this.getCraftPlayer().getEyeLocation();
++        final org.bukkit.util.RayTraceResult rayTraceResult = this.player.getBukkitEntity().getWorld().rayTrace(
++                eyeLocation,
++                eyeLocation.getDirection(),
++                range,
++                org.bukkit.FluidCollisionMode.NEVER,
++                false,
++                0,
++                entity -> {
++                    final CraftEntity craftEntity = (CraftEntity) entity;
++                    return !entity.getUniqueId().equals(this.player.getUUID()) &&
++                            (!(entity instanceof org.bukkit.entity.HumanEntity human) || human.getGameMode() != org.bukkit.GameMode.SPECTATOR) &&
++                            craftEntity.getHandle().isPickable() &&
++                            !craftEntity.getHandle().isPassengerOfSameVehicle(this.player) &&
++                            this.player.getBukkitEntity().canSee(entity);
++                }
++        );
++        if (rayTraceResult == null) return;
++        final org.bukkit.entity.Entity entity = rayTraceResult.getHitEntity();
++        if (entity == null) return;
++        final Entity mcEntity = ((CraftEntity) entity).getHandle();
++        if (!level.getWorldBorder().isWithinBounds(mcEntity.blockPosition())) {
++            return;
++        }
++        final boolean contain = config.modules.attack.entityTypes.entityTypes.contains(net.minecraft.world.entity.EntityType.getKey(mcEntity.getType()).toString());
++        switch (config.modules.attack.entityTypes.mode) {
++            case BLACKLIST -> {
++                if (contain) return;
++            }
++
++            case WHITELIST -> {
++                if (!contain) return;
++            }
++        }
++
++        // Attack the entity
++        this.handleAttack(new ServerboundAttackPacket(mcEntity.getId()));
++    }
++    // Lagless end - Handle punch packet for attack module
+ 
+     @Override
+     public void handlePunch(final ServerboundPunchPacket packet) {
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
++        this.handlePunchPacket$lagless(); // Lagless - Handle punch packet for attack module
+         if (this.player.isImmobile()) return; // CraftBukkit
+         this.player.resetLastActionTime();
+         // CraftBukkit start - Raytrace to look for 'rogue armswings'
+@@ -2997,6 +3076,7 @@ public class ServerGamePacketListenerImpl
+                             LOGGER.warn("Player {} tried to attack an invalid entity", this.player.getPlainTextName());
+                         } else if (mainHandItem.isItemEnabled(level.enabledFeatures())) {
+                             if (!this.player.cannotAttackWithItem(mainHandItem, 5)) {
++                                this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.ATTACK); // Lagless - Update punch state for attack module
+                                 this.player.attack(target);
+                             }
+                         }

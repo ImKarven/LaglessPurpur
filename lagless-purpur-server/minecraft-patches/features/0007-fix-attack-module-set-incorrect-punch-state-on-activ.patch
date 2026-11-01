@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Karven <karven@atomicmail.io>
+Date: Sun, 1 Nov 2026 13:40:58 +0700
+Subject: [PATCH] fix: attack module set incorrect punch state on activation
+
+
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index daba54e1c4675f54df77f48d907a6555b823f9cd..39ff6c213984cf7ce64923ba64ad3c3b6c6878ba 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -2878,7 +2878,7 @@ public class ServerGamePacketListenerImpl
+         }
+ 
+         // Attack the entity
+-        this.handleAttack(new ServerboundAttackPacket(mcEntity.getId()));
++        this.handleAttack$lagless(new ServerboundAttackPacket(mcEntity.getId()), false); // Lagless - Don't update punch state on manual attack
+     }
+     // Lagless end - Handle punch packet for attack module
+ 
+@@ -3050,6 +3050,11 @@ public class ServerGamePacketListenerImpl
+ 
+     @Override
+     public void handleAttack(final ServerboundAttackPacket packet) {
++        // Lagless start - Add utility method for calling attack for attack module
++        this.handleAttack$lagless(packet, true);
++    }
++    private void handleAttack$lagless(final ServerboundAttackPacket packet, final boolean updatePunchState) {
++        // Lagless end - Add utility method for calling attack for attack module
+         PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level());
+         if (this.player.isImmobile()) return; // Paper
+         if (this.hasClientLoaded() && !this.player.isSpectator()) {
+@@ -3076,7 +3081,7 @@ public class ServerGamePacketListenerImpl
+                             LOGGER.warn("Player {} tried to attack an invalid entity", this.player.getPlainTextName());
+                         } else if (mainHandItem.isItemEnabled(level.enabledFeatures())) {
+                             if (!this.player.cannotAttackWithItem(mainHandItem, 5)) {
+-                                this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.ATTACK); // Lagless - Update punch state for attack module
++                                if (updatePunchState) this.player.setPunchState$lagless(me.karven.lagless.module.AttackModule.PunchState.ATTACK); // Lagless - Update punch state for attack module // Lagless - only update punch state on actual packet
+                                 this.player.attack(target);
+                             }
+                         }
