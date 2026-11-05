@@ -5,10 +5,10 @@ Subject: [PATCH] Rebrand to LaglessPurpur
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
-index 827d58a315021543b6b04eb0e3821384a2f7224e..6116375228469dbb217f8a330720f8988613d93d 100644
+index 666ea000b8953483bf2c7bfe760177593dcecbc2..64aa1d03f9acd2f4486d7a29dfcd5ef0ac591803 100644
 --- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
 +++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
-@@ -21,7 +21,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+@@ -27,7 +27,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
      @Override
      protected LineReader buildReader(LineReaderBuilder builder) {
          builder
